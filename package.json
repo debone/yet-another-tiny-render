@@ -1,0 +1,27 @@
+{
+  "name": "yet-another-tiny-render",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "parcel index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/debone/yet-another-tiny-render.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/debone/yet-another-tiny-render/issues"
+  },
+  "homepage": "https://github.com/debone/yet-another-tiny-render#readme",
+  "dependencies": {
+    "parcel": "^2.0.0",
+    "tweakpane": "^3.0.5"
+  },
+  "devDependencies": {
+    "@tweakpane/core": "^1.0.6"
+  }
+}
