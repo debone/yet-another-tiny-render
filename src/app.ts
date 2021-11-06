@@ -1,34 +1,49 @@
-// import {Pane} from 'tweakpane';
+import { Pane } from "tweakpane";
+import { bg } from "./drawing";
 
-const canvas = document.getElementById("tiny-render-canvas") as HTMLCanvasElement;
+import lesson0 from "./lesson0";
+import lesson1 from "./lesson1";
+
+const PARAMS = {
+  scene: "",
+};
+
+const pane = new Pane();
+
+const selector = pane.addBlade({
+  view: 'list',
+  presetKey: 'scene',
+  label: 'scene',
+  options: {
+    none: "",
+    none2: "222",
+    ...lesson0,
+    ...lesson1,
+  },
+  value: lesson1.something,
+});
+
+const canvas = document.getElementById(
+  "tiny-render-canvas"
+) as HTMLCanvasElement;
 const context = canvas.getContext("2d");
 
-const width = canvas.width;
-const height = canvas.height;
+function drawWith(drawingFunction) {
+  const imageData = context.createImageData(canvas.width, canvas.height);
+  const data = imageData.data;
 
-const imageData = context.createImageData(width, height);
-const data = imageData.data;
+  bg(canvas, data);
+  drawingFunction(canvas, data);
 
-function setPixel(x,y,r,g,b,a = 255) {
-    x = x * 4
-    y = y * 4 * width
-    data[0 + x + y] = r;
-    data[1 + x + y] = g;
-    data[2 + x + y] = b;
-    data[3 + x + y] = a;
+  context.putImageData(imageData, 0, 0);
 }
 
-for(let i = 0; i < height; i++) {
-    for(let j = 0; j < width; j++) {
-        data[j * 4 + i * 4 * width] = 0;
-        data[1 + j * 4 + i * 4 * width] = 153;
-        data[2 + j * 4 + i * 4 * width] = 204;
-        data[3 + j * 4 + i * 4 * width] = 255;
-    }
-}
+drawWith(selector.value);
 
-for (let k = 0; k < 100; k++) {
-    setPixel(100+ k, 100 + k, 0, 82, 162)
-}
-
-context.putImageData(imageData, 0, 0);
+selector.on("change", (ev) => {
+  console.log(ev);
+  
+  if (ev.target.label === "scene") {
+    drawWith(ev.value);
+  }
+});
