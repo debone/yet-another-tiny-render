@@ -12,3 +12,5 @@ vscode:
   extensions:
     - k--kato.intellij-idea-keybindings
     - esbenp.prettier-vscode
+    - sdras.night-owl
+    - sleistner.vscode-fileutils

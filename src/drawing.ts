@@ -21,6 +21,7 @@ export function setPixel(
   // TODO huh, setPixel with non-integers?
   x = Math.floor(x) * 4;
   y = Math.floor(y) * 4 * canvas.width;
+  
   data[0 + x + y] = color.r;
   data[1 + x + y] = color.g;
   data[2 + x + y] = color.b;

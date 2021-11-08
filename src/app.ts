@@ -1,8 +1,17 @@
-import { Pane } from "tweakpane";
+import { BladeController, View } from "@tweakpane/core";
+import { BladeApi, Pane } from "tweakpane";
 import { bg } from "./drawing";
 
 import lesson0 from "./lesson0";
 import lesson1 from "./lesson1";
+
+
+// full page reload
+if (module.hot) {
+  module.hot.accept(function () {
+    location.reload();
+  });
+}
 
 const PARAMS = {
   scene: "",
@@ -10,17 +19,16 @@ const PARAMS = {
 
 const pane = new Pane();
 
-const selector = pane.addBlade({
+const selector:any = pane.addBlade({
   view: 'list',
   presetKey: 'scene',
   label: 'scene',
   options: {
     none: "",
-    none2: "222",
     ...lesson0,
     ...lesson1,
   },
-  value: lesson1.something,
+  value: lesson1["1: line mvp"],
 });
 
 const canvas = document.getElementById(

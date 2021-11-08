@@ -6,7 +6,23 @@
     rgb(0, 187, 216)
     rgb(80, 221, 225)
 */
-html, body {
-    background-color: #002d81;
-    color: #50dde1;
+html,
+body {
+  background-color: #002d81;
+  color: #50dde1;
+}
+
+.nav ul {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  list-style: none;
+}
+
+.nav ul li {
+  margin: 3px;
+}
+
+pre.tests {
+  background-color: #002d81;
 }
