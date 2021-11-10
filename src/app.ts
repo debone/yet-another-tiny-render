@@ -17,24 +17,30 @@ const PARAMS = {
   scene: "",
 };
 
-const pane = new Pane();
+const pane = new Pane({
+  title: "Scenes",
+});
 
-const selector:any = pane.addBlade({
-  view: 'list',
-  presetKey: 'scene',
-  label: 'scene',
+
+const selector: any = pane.addBlade({
+  view: "list",
+  presetKey: "scene",
+  label: "scene",
   options: {
     none: "",
     ...lesson0,
     ...lesson1,
   },
-  value: lesson1["1: line mvp"],
+  value: lesson1["1: render head"],
 });
 
 const canvas = document.getElementById(
   "tiny-render-canvas"
 ) as HTMLCanvasElement;
 const context = canvas.getContext("2d");
+
+canvas.halfWidth = canvas.width / 2;
+canvas.halfHeight = canvas.height / 2;
 
 function drawWith(drawingFunction) {
   const imageData = context.createImageData(canvas.width, canvas.height);
@@ -46,12 +52,13 @@ function drawWith(drawingFunction) {
   context.putImageData(imageData, 0, 0);
 }
 
-drawWith(selector.value);
-
-selector.on("change", (ev) => {
+const handleDraw = (ev) => {
   console.log(ev);
   
   if (ev.target.label === "scene") {
     drawWith(ev.value);
   }
-});
+};
+
+handleDraw({ target: { label: "scene" }, value: selector.value });
+selector.on("change", handleDraw);

@@ -1,4 +1,6 @@
 import { setPixel } from "./drawing";
+import head from "./model/head";
+import { parseObj } from "./model/parseObj";
 
 import { Color } from "./types";
 
@@ -225,5 +227,27 @@ export default {
     setLineUnbranched(canvas, data, 13, 20, 80, 40, blue1);
     setLineUnbranched(canvas, data, 20, 13, 40, 80, red1);
     setLineUnbranched(canvas, data, 80, 40, 13, 20, red1);
+  },
+  "1: render head"(canvas, data, options = {}) {
+    let blue1: Color = { r: 0, g: 82, b: 162, a: 255 };
+    const headObj = parseObj(head);
+    const pos = headObj.position;
+
+    for (let i = 0; i < pos.length; i += 9) {
+      let v1x = (pos[i + 0] + 1) * canvas.halfWidth;
+      let v1y = (pos[i + 1] - 1) * -canvas.halfHeight;
+      let v1z = (pos[i + 2] + 1) * canvas.halfHeight;
+      let v2x = (pos[i + 3 + 0] + 1) * canvas.halfWidth;
+      let v2y = (pos[i + 3 + 1] - 1) * -canvas.halfHeight;
+      let v2z = (pos[i + 3 + 2] + 1) * canvas.halfHeight;
+      let v3x = (pos[i + 6 + 0] + 1) * canvas.halfWidth;
+      let v3y = (pos[i + 6 + 1] - 1) * -canvas.halfHeight;
+      let v3z = (pos[i + 6 + 2] + 1) * canvas.halfHeight;
+
+      //render triangle
+      setLineUnbranched(canvas, data, v1x, v1y, v2x, v2y, blue1);
+      setLineUnbranched(canvas, data, v1x, v1y, v3x, v3y, blue1);
+      setLineUnbranched(canvas, data, v3x, v3y, v2x, v2y, blue1);
+    }
   },
 };

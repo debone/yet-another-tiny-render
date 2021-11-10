@@ -49,19 +49,25 @@ const testsEl = document.querySelector(".tests") as HTMLPreElement;
   await benchmark.record(
     ["Lesson 1", '"mvp line" lesson fourth attempt'],
     () => lesson1["1: fourth attempt"](sceneCanvas, sceneDataWhite),
-    { iterations: 100000 }
+    { iterations: 1000 }
   );
 
   await benchmark.record(
     ["Lesson 1", '"mvp line" lesson fifth attempt'],
     () => lesson1["1: fifth attempt"](sceneCanvas, sceneDataWhite),
-    { iterations: 100000 }
+    { iterations: 1000 }
   );
 
   await benchmark.record(
     ["Lesson 1", '"mvp line" lesson unbranched attempt'],
     () => lesson1["1: unbranched attempt"](sceneCanvas, sceneDataWhite),
-    { iterations: 100000 }
+    { iterations: 1000 }
+  );
+
+  await benchmark.record(
+    ["Lesson 1", 'render head'],
+    () => lesson1["1: render head"](sceneCanvas, sceneDataWhite),
+    { iterations: 1000 }
   );
 
   testsEl.innerText = benchmark.report();
