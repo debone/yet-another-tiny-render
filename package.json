@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/debone/yet-another-tiny-render#readme",
   "dependencies": {
+    "@tweakpane/plugin-essentials": "^0.1.4",
     "kelonio": "^0.7.0",
     "tweakpane": "^3.0.5"
   },

@@ -228,13 +228,51 @@ export default {
     setLineUnbranched(canvas, data, 20, 13, 40, 80, red1);
     setLineUnbranched(canvas, data, 80, 40, 13, 20, red1);
   },
-  "1: render head"(canvas, data, options = {}) {
-    let blue1: Color = { r: 0, g: 82, b: 162, a: 255 };
-    const headObj = parseObj(head);
-    const pos = headObj.position;
+  "1: render head": {
+    options(folder, render) {
+      const params = {
+        x: 0,
+        y: 1
+      }
+      const axis = ['x', 'y', 'z']
+      
+      folder.addInput(params, 'x', {
+        view: 'radiogrid',
+        groupName: 'x',
+        size: [3, 1],
+        cells: (x, y) => ({
+          title: `${axis[x]}`,
+          value: x,
+        }),
+      
+        label: 'x',
+      }).on('change', (ev) => {
+        render(params)
+      });
 
-    for (let i = 0; i < pos.length; i += 9) {
-      let v1x = (pos[i + 0] + 1) * canvas.halfWidth;
+      folder.addInput(params, 'y', {
+        view: 'radiogrid',
+        groupName: 'y',
+        size: [3, 1],
+        cells: (x, y) => ({
+          title: `${axis[x]}`,
+          value: x,
+        }),
+      
+        label: 'y',
+      }).on('change', (ev) => {
+        render(params)
+      });      
+    
+      render(params)
+    },
+    render(canvas, data, options = { x: 0, y: 1 }) {
+      let blue1: Color = { r: 0, g: 82, b: 162, a: 255 };
+      const headObj = parseObj(head);
+      const pos = headObj.position;
+
+      for (let i = 0; i < pos.length; i += 9) {
+        /*let v1x = (pos[i + 0] + 1) * canvas.halfWidth;
       let v1y = (pos[i + 1] - 1) * -canvas.halfHeight;
       let v1z = (pos[i + 2] + 1) * canvas.halfHeight;
       let v2x = (pos[i + 3 + 0] + 1) * canvas.halfWidth;
@@ -242,12 +280,22 @@ export default {
       let v2z = (pos[i + 3 + 2] + 1) * canvas.halfHeight;
       let v3x = (pos[i + 6 + 0] + 1) * canvas.halfWidth;
       let v3y = (pos[i + 6 + 1] - 1) * -canvas.halfHeight;
-      let v3z = (pos[i + 6 + 2] + 1) * canvas.halfHeight;
+      let v3z = (pos[i + 6 + 2] + 1) * canvas.halfHeight;*/
 
-      //render triangle
-      setLineUnbranched(canvas, data, v1x, v1y, v2x, v2y, blue1);
-      setLineUnbranched(canvas, data, v1x, v1y, v3x, v3y, blue1);
-      setLineUnbranched(canvas, data, v3x, v3y, v2x, v2y, blue1);
-    }
+        let t1x = (pos[i + options.x] + 1) * canvas.halfWidth;
+        let t1y = (pos[i + options.y] - 1) * -canvas.halfHeight;
+
+        let t2x = (pos[i + 3 + options.x] + 1) * canvas.halfWidth;
+        let t2y = (pos[i + 3 + options.y] - 1) * -canvas.halfHeight;
+
+        let t3x = (pos[i + 6 + options.x] + 1) * canvas.halfWidth;
+        let t3y = (pos[i + 6 + options.y] - 1) * -canvas.halfHeight;
+
+        //render triangle
+        setLineUnbranched(canvas, data, t1x, t1y, t2x, t2y, blue1);
+        setLineUnbranched(canvas, data, t1x, t1y, t3x, t3y, blue1);
+        setLineUnbranched(canvas, data, t3x, t3y, t2x, t2y, blue1);
+      }
+    },
   },
 };
