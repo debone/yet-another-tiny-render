@@ -104,6 +104,7 @@ export function setLineFifthAttempt(
     [x0, x1] = [x1, x0];
     [y0, y1] = [y1, y0];
   }
+  
   let y = y0 + 0;
 
   let dx = x1 - x0;

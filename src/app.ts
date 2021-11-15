@@ -5,6 +5,7 @@ import { bg } from "./drawing";
 
 import lesson0 from "./lesson0";
 import lesson1 from "./lesson1";
+import lesson2 from "./lesson2";
 
 // full page reload
 if (module.hot) {
@@ -26,13 +27,14 @@ pane.registerPlugin(EssentialsPlugin);
 const selector: any = pane.addBlade({
   view: "list",
   presetKey: "scene",
-  label: "scene",
+  label: "Scene",
   options: {
     none: "",
     ...lesson0,
     ...lesson1,
+    ...lesson2
   },
-  value: lesson1["1: render head"],
+  value: lesson2["2: line-sweeping triangle"],
 });
 
 const canvas = document.getElementById(
