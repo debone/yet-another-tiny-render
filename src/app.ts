@@ -7,6 +7,18 @@ import lesson0 from "./lesson0";
 import lesson1 from "./lesson1";
 import lesson2 from "./lesson2";
 
+function addValue(lesson) {
+  return { text: lesson, value: lesson };
+}
+
+const allLessons = {
+  ...lesson0,
+  ...lesson1,
+  ...lesson2,
+};
+
+const allLessonsKeys = Object.keys(allLessons).map(addValue);
+
 // full page reload
 if (module.hot) {
   module.hot.accept(function () {
@@ -28,13 +40,8 @@ const selector: any = pane.addBlade({
   view: "list",
   presetKey: "scene",
   label: "Scene",
-  options: {
-    none: "",
-    ...lesson0,
-    ...lesson1,
-    ...lesson2
-  },
-  value: lesson2["2: line-sweeping triangle"],
+  options: [{ text: "none", value: "" }, ...allLessonsKeys],
+  value: "2: bbox triangle",
 });
 
 const canvas = document.getElementById(
@@ -62,22 +69,23 @@ const handleNewScene = (ev) => {
 
   sceneFolder?.dispose();
 
-  if (ev.target.label === "scene") {
-    if (typeof ev.value === "function") {
-      console.log(ev.value);
-      drawWith(ev.value);
+  if (ev.target.label === "Scene") {
+    const lesson = allLessons[ev.value];
+    if (typeof lesson === "function") {
+      console.log(lesson);
+      drawWith(lesson);
     } else {
-      console.log(ev.value);
-      
+      console.log(lesson);
+
       sceneFolder = pane.addFolder({
         title: "Scene params",
       });
 
-      ev.value.options(sceneFolder, drawWith.bind(null, ev.value.render));
-      //drawWith(ev.value.render);
+      lesson.options(sceneFolder, drawWith.bind(null, lesson.render));
+      //drawWith(lesson.render);
     }
   }
 };
 
-handleNewScene({ target: { label: "scene" }, value: selector.value });
+handleNewScene({ target: { label: "Scene" }, value: selector.value });
 selector.on("change", handleNewScene);

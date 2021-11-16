@@ -89,7 +89,57 @@ export function lineSweepingTriangle(v0, v1, v2, canvas, data, color) {
 }
 
 export default {
-  "2: line-sweeping triangle": {
+  "2: my horrible line-sweeping triangle": {
+    options(folder, render) {
+      const params = {
+        x: 0,
+        y: 1,
+      };
+      /*const axis = ['x', 'y', 'z']
+          
+          folder.addInput(params, 'x', {
+            view: 'radiogrid',
+            groupName: 'x',
+            size: [3, 1],
+            cells: (x, y) => ({
+              title: `${axis[x]}`,
+              value: x,
+            }),
+          
+            label: 'x',
+          }).on('change', (ev) => {
+            render(params)
+          });
+          */
+      render(params);
+    },
+    render(canvas, data, options = { x: 0, y: 1 }) {
+      let t0 = [
+        { x: 10, y: 70 },
+        { x: 50, y: 160 },
+        { x: 70, y: 80 },
+      ];
+      let t1 = [
+        { x: 180, y: 50 },
+        { x: 150, y: 1 },
+        { x: 70, y: 180 },
+      ];
+      let t2 = [
+        { x: 180, y: 150 },
+        { x: 120, y: 160 },
+        { x: 130, y: 180 },
+      ];
+
+      let red: Color = { r: 255, g: 99, b: 121, a: 255 };
+      let green: Color = { r: 13, g: 123, b: 17, a: 255 };
+      let white: Color = { r: 255, g: 255, b: 255, a: 255 };
+
+      lineSweepingTriangle(t0[0], t0[1], t0[2], canvas, data, red);
+      lineSweepingTriangle(t1[0], t1[1], t1[2], canvas, data, white);
+      lineSweepingTriangle(t2[0], t2[1], t2[2], canvas, data, green);
+    },
+  },
+  "2: bbox triangle": {
     options(folder, render) {
       const params = {
         x: 0,
