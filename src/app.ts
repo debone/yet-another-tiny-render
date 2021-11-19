@@ -6,6 +6,7 @@ import { bg } from "./drawing";
 import lesson0 from "./lesson0";
 import lesson1 from "./lesson1";
 import lesson2 from "./lesson2";
+import lesson3 from "./lesson3";
 
 function addValue(lesson) {
   return { text: lesson, value: lesson };
@@ -15,6 +16,7 @@ const allLessons = {
   ...lesson0,
   ...lesson1,
   ...lesson2,
+  ...lesson3,
 };
 
 const allLessonsKeys = Object.keys(allLessons).map(addValue);
@@ -41,7 +43,7 @@ const selector: any = pane.addBlade({
   presetKey: "scene",
   label: "Scene",
   options: [{ text: "none", value: "" }, ...allLessonsKeys],
-  value: "2: bbox triangle",
+  value:"3: render head with texture",
 });
 
 const canvas = document.getElementById(
@@ -81,7 +83,16 @@ const handleNewScene = (ev) => {
         title: "Scene params",
       });
 
-      lesson.options(sceneFolder, drawWith.bind(null, lesson.render));
+      if (lesson.preload) {
+        lesson
+          .preload()
+          .then(() =>
+            lesson.options(sceneFolder, drawWith.bind(null, lesson.render))
+          );
+      } else {
+        lesson.options(sceneFolder, drawWith.bind(null, lesson.render));
+      }
+
       //drawWith(lesson.render);
     }
   }

@@ -1,5 +1,7 @@
 import { benchmark, measure } from "kelonio";
 import lesson1, { setLine } from "../lesson1";
+import lesson2 from "../lesson2";
+import lesson3 from "../lesson3";
 import {
   black,
   milByMilCanvas,
@@ -66,7 +68,25 @@ const testsEl = document.querySelector(".tests") as HTMLPreElement;
 
   await benchmark.record(
     ["Lesson 1", 'render head'],
-    () => lesson1["1: render head"](sceneCanvas, sceneDataWhite),
+    () => lesson1["1: render head"].render(sceneCanvas, sceneDataWhite),
+    { iterations: 1000 }
+  );
+
+  await benchmark.record(
+    ["Lesson 2", 'horrible line sweeping'],
+    () => lesson2["2: my horrible line-sweeping triangle"].render(sceneCanvas, sceneDataWhite),
+    { iterations: 1000 }
+  );
+
+  await benchmark.record(
+    ["Lesson 2", 'bbox triangle'],
+    () => lesson2["2: bbox triangle"].render(sceneCanvas, sceneDataWhite),
+    { iterations: 1000 }
+  );
+
+  await benchmark.record(
+    ["Lesson 3", 'bbox triangle hot'],
+    () => lesson3["3: bbox triangle hot"].render(sceneCanvas, sceneDataWhite),
     { iterations: 1000 }
   );
 

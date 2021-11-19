@@ -11,6 +11,18 @@ export function bg(canvas, data) {
   }
 }
 
+export function markZ(canvas, data, zbuff) {
+  for (let i = 0; i < canvas.height; i++) {
+    for (let j = 0; j < canvas.width; j++) {
+      if (zbuff[i + j * canvas.width] > -Infinity) continue;
+      data[j * 4 + i * 4 * canvas.width] = 255;
+      data[1 + j * 4 + i * 4 * canvas.width] = 0;
+      data[2 + j * 4 + i * 4 * canvas.width] = 0;
+      data[3 + j * 4 + i * 4 * canvas.width] = 255;
+    }
+  }
+}
+
 export function setPixel(
   canvas,
   data: Uint8ClampedArray,
@@ -19,8 +31,8 @@ export function setPixel(
   color: Color
 ) {
   // TODO huh, setPixel with non-integers?
-  x = Math.floor(x) * 4;
-  y = Math.floor(y) * 4 * canvas.width;
+  x = Math.round(x) * 4;
+  y = Math.round(y) * 4 * canvas.width;
   
   data[0 + x + y] = color.r;
   data[1 + x + y] = color.g;
@@ -84,3 +96,17 @@ export function setLine(
     }
   }
 }
+
+
+export const bluerocolors : Color[] = [
+  {r:20,  g:95,  b: 242, a: 255},
+  {r:143, g:81,  b: 223, a: 255},
+  {r:195, g:66,  b: 198, a: 255},
+  {r:227, g:58,  b: 170, a: 255},
+  {r:247, g:64,  b: 141, a: 255},
+  {r:255, g:82,  b: 115, a: 255},
+  {r:254, g:105, b: 93, a: 255},
+  {r:247, g:129, b: 77, a: 255},
+  {r:234, g:150, b: 69, a: 255},
+  {r:219, g:170, b: 72, a: 255},
+]
