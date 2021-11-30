@@ -1,4 +1,4 @@
-import { bluerocolors, markZ, setPixel } from "./drawing";
+import { bluerocolors, markZ, setLine, setPixel } from "./drawing";
 import {
   bboxTriangleHot,
   cross,
@@ -10,7 +10,7 @@ import head from "./model/head";
 import headLowPoly from "./model/headLowPoly";
 import { parseObj } from "./model/parseObj";
 import parseTga from "./model/parseTga";
-import { Color } from "./types";
+import { Color, TGA } from "./types";
 
 export function bboxTriangleZBuff(v0, v1, v2, zbuffer, canvas, data, color) {
   const points = [
@@ -258,6 +258,150 @@ export function lineSweepBboxTriangleZBuffPerf(
       if (zbuffer[p[1] + p[0] * canvas.width] < p[2]) {
         zbuffer[p[1] + p[0] * canvas.width] = p[2];
         setPixel(canvas, data, p[0], p[1], color);
+      }
+    }
+  }
+}
+
+export function lineSweepBboxTriangleZBuffPerfWithTexture(
+  v0,
+  v1,
+  v2,
+  vt0,
+  vt1,
+  vt2,
+  texture: TGA,
+  zbuffer: Float32Array,
+  canvas,
+  data,
+  color,
+  options = { seeZBuff: false }
+) {
+  const points = Int32Array.from([
+    ...[v0.x, v0.y, v0.z],
+    ...[v1.x, v1.y, v1.z],
+    ...[v2.x, v2.y, v2.z],
+  ]);
+
+  let t0 = [points[0], points[1]];
+  let t1 = [points[3], points[4]];
+  let t2 = [points[6], points[7]];
+
+  if (t0[1] > t1[1]) [t0, t1] = [t1, t0];
+  if (t0[1] > t2[1]) [t0, t2] = [t2, t0];
+  if (t1[1] > t2[1]) [t2, t1] = [t1, t2];
+
+  let t00 = t0[0];
+  let t01 = t0[1];
+  let t10 = t1[0];
+  let t11 = t1[1];
+  let t20 = t2[0];
+  let t21 = t2[1];
+
+  let bboxMin = [canvas.width - 1, canvas.height - 1];
+  let bboxMax = [0, 0];
+  let clamp = [canvas.width - 1, canvas.height - 1];
+
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 2; j++) {
+      bboxMin[j] = Math.max(0, Math.min(bboxMin[j], points[i * 3 + j]));
+      bboxMax[j] = Math.min(clamp[j], Math.max(bboxMax[j], points[i * 3 + j]));
+    }
+  }
+
+  let stopper = 0;
+
+  let p = [0, 0, 0];
+
+  let p10 = points[6] - points[0];
+  let p11 = points[3] - points[0];
+  let p20 = points[7] - points[1];
+  let p21 = points[4] - points[1];
+
+  let u2 = p20 * p11 - p21 * p10;
+
+  if (Math.abs(u2) < 1) return;
+
+  let p12, p22;
+  let u0, u1;
+  let b0, b1, b2;
+
+  let totalHeight = t21 - t01;
+
+  for (p[1] = t01 - 2; p[1] <= bboxMax[1] + 2; p[1]++) {
+    let areWeOnTheOtherSide = false;
+
+    let secondHalf = p[1] > t11;
+    let segmentHeight = secondHalf ? t21 - t11 + 1 : t11 - t01 + 1;
+    let alpha = (p[1] - t01) / totalHeight;
+    let beta = (p[1] - (secondHalf ? t11 : t01)) / segmentHeight;
+
+    let a = t00 + (t20 - t00) * alpha;
+    let b = secondHalf ? t10 + (t20 - t10) * beta : t00 + (t10 - t00) * beta;
+
+    let step = secondHalf ? t11 / segmentHeight : t01 / segmentHeight;
+
+    if (a > b) {
+      [a, b] = [b, a];
+      a = Math.min(a - step, bboxMin[0]);
+    }
+
+    for (p[0] = Math.floor(a); p[0] <= bboxMax[0]; p[0]++) {
+      p12 = points[0] - p[0];
+      p22 = points[1] - p[1];
+
+      u0 = p21 * p12 - p22 * p11;
+      u1 = p22 * p10 - p20 * p12;
+
+      b0 = 1 - (u0 + u1) / u2;
+      b1 = u1 / u2;
+      b2 = u0 / u2;
+
+      //console.log(p);
+      if (stopper++ > 250000) {
+        break;
+      }
+
+      if (b0 < 0 || b1 < 0 || b2 < 0) {
+        //if (b0 > 0 && b1 > 0 && b2 > 0) {
+        if (areWeOnTheOtherSide) break;
+        //setPixel(canvas, data, p[0], p[1], { r: 255, g: 0, b: 255, a: 255 });
+        continue;
+      }
+
+      let a = [b1 * (vt1.x - vt0.x), b1 * (vt1.y - vt0.y)];
+      let b = [b2 * (vt2.x - vt0.x), b2 * (vt2.y - vt0.y)];
+
+      let xt = Math.round(vt0.x + a[0] + b[0]);
+      let yt = Math.round(vt0.y + a[1] + b[1]);
+
+      let texColor = {
+        r: color.r * texture.data[xt * 4 + yt * texture.width * 4],
+        g: color.g * texture.data[xt * 4 + yt * texture.width * 4 + 1],
+        b: color.b * texture.data[xt * 4 + yt * texture.width * 4 + 2],
+        a: 255,
+      };
+
+      //debugger
+      areWeOnTheOtherSide = true;
+
+      p[2] = 0;
+      p[2] += points[2] * b0;
+      p[2] += points[5] * b1;
+      p[2] += points[8] * b2;
+
+      if (zbuffer[p[1] + p[0] * canvas.width] < p[2]) {
+        zbuffer[p[1] + p[0] * canvas.width] = p[2];
+        if (!options.seeZBuff) {
+          setPixel(canvas, data, p[0], p[1], texColor);
+        } else {
+          setPixel(canvas, data, p[0], p[1], {
+            r: p[2] - 0.4 * p[2],
+            g: p[2] -0.8 * p[2],
+            b: p[2] - 0.3 * p[2],
+            a: 255,
+          });
+        }
       }
     }
   }
@@ -552,12 +696,13 @@ export default {
       y: 1,
       l1: { x: 1, y: 0 },
       l2: { x: -1, y: 0 },
+      seeZBuff: false,
     },
     async preload() {
       let textureReq = await fetch(
         new URL("model/african_head_diffuse.tga", import.meta.url).toString()
       );
-      this.params.texture = parseTga(await textureReq.arrayBuffer());
+      this.params.texture = parseTga(await textureReq.arrayBuffer()) as TGA;
     },
     options(folder, render) {
       const params = this.params;
@@ -605,6 +750,8 @@ export default {
         expanded: true,
       });
 
+      folder.addInput(params, 'seeZBuff')
+
       render(params);
     },
     render(canvas, data, options = this.params) {
@@ -619,17 +766,52 @@ export default {
       let posText;
       for (let y = 0; y < canvas.height; y++) {
         for (let x = 0; x < canvas.width; x++) {
-          posText = x * 4 + 4* y * options.texture.width;
-          setPixel(canvas, data, x, y, {
+          posText = x * 4 + 4 * y * options.texture.width;
+          /*setPixel(canvas, data, x, y, {
             r: options.texture.data[posText + 0],
             g: options.texture.data[posText + 1],
             b: options.texture.data[posText + 2],
             a: 255,
-          });
+          });*/
         }
       }
-      //
 
+      let z = 0;
+
+      let texCoord = headObj.texcoord;
+      for (let i = 0; i < texCoord.length; i += 9) {
+        if (z++ > 1) {
+          break;
+        }
+        let v1x = texCoord[i + 0] * options.texture.width;
+        let v1y = texCoord[i + 1] * options.texture.height;
+        let v2x = texCoord[i + 3 + 0] * options.texture.width;
+        let v2y = texCoord[i + 3 + 1] * options.texture.height;
+        let v3x = texCoord[i + 6 + 0] * options.texture.width;
+        let v3y = texCoord[i + 6 + 1] * options.texture.height;
+
+        setLine(canvas, data, v1x, v1y, v2x, v2y, {
+          r: 255,
+          g: 0,
+          b: 255,
+          a: 255,
+        });
+        setLine(canvas, data, v1x, v1y, v3x, v3y, {
+          r: 255,
+          g: 0,
+          b: 255,
+          a: 255,
+        });
+        setLine(canvas, data, v3x, v3y, v2x, v2y, {
+          r: 255,
+          g: 0,
+          b: 255,
+          a: 255,
+        });
+      }
+
+      //return;
+      //      let y = 0;
       for (let i = 0; i < pos.length; i += 9) {
         /*let v1x = (pos[i + 0] + 1) * canvas.halfWidth;
           let v1y = (pos[i + 1] - 1) * -canvas.halfHeight;
@@ -688,7 +870,7 @@ export default {
         let t1_screenCoord = {
           x: (pos[i + options.x] + 1) * canvas.halfWidth,
           y: (pos[i + options.y] - 1) * -canvas.halfHeight,
-          z: pos[i + 2],
+          z: (pos[i + 2] + 1) * canvas.halfWidth,
         };
 
         let t2_worldCoord = {
@@ -700,7 +882,7 @@ export default {
         let t2_screenCoord = {
           x: (pos[i + 3 + options.x] + 1) * canvas.halfWidth,
           y: (pos[i + 3 + options.y] - 1) * -canvas.halfHeight,
-          z: pos[i + 3 + 2],
+          z: (pos[i + 3 + 2] + 1) * canvas.halfWidth,
         };
 
         let t3_worldCoord = {
@@ -712,8 +894,24 @@ export default {
         let t3_screenCoord = {
           x: (pos[i + 6 + options.x] + 1) * canvas.halfWidth,
           y: (pos[i + 6 + options.y] - 1) * -canvas.halfHeight,
-          z: pos[i + 6 + 2],
+          z: (pos[i + 6 + 2] + 1) * canvas.halfWidth,
         }; /**/
+
+        let vt0_texCoord = {
+          x: texCoord[i] * options.texture.width,
+          y: (texCoord[i + 1] - 1) * -options.texture.height,
+          z: 0,
+        };
+        let vt1_texCoord = {
+          x: texCoord[i + 3] * options.texture.width,
+          y: (texCoord[i + 3 + 1] - 1) * -options.texture.height,
+          z: 0,
+        };
+        let vt2_texCoord = {
+          x: texCoord[i + 6] * options.texture.width,
+          y: (texCoord[i + 6 + 1] - 1) * -options.texture.height,
+          z: 0,
+        };
 
         const n = cross(
           [
@@ -745,23 +943,27 @@ export default {
         }
         let camera = dot(n, [0, 0, 1]);
 
-        let col = Math.floor(intensity * 5) % bluerocolors.length;
-
+        let col = Math.floor(intensity * 50) % bluerocolors.length;
         //render triangle
-        if (camera > 0) {
-          lineSweepBboxTriangleZBuffPerf(
+        if (true || camera > 0) {
+          lineSweepBboxTriangleZBuffPerfWithTexture(
             t1_screenCoord,
             t2_screenCoord,
             t3_screenCoord,
+            vt0_texCoord,
+            vt1_texCoord,
+            vt2_texCoord,
+            options.texture,
             zbuff,
             canvas,
             data,
             {
-              r: intensity * bluerocolors[col].r,
-              g: intensity * bluerocolors[col].g,
-              b: intensity * bluerocolors[col].b,
+              r: intensity, //* bluerocolors[col].r,
+              g: intensity, //* bluerocolors[col].g,
+              b: intensity, //* bluerocolors[col].b,
               a: 255,
-            }
+            },
+            {seeZBuff:options.seeZBuff}
           );
         }
       }

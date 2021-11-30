@@ -1,5 +1,7 @@
+import { TGA } from "../types";
+
 // https://github.com/mrdoob/three.js/blob/master/examples/jsm/loaders/TGALoader.js
-export default function parseTga(buffer) {
+export default function parseTga(buffer): TGA {
 
   function tgaCheckHeader(header) {
     switch (header.image_type) {

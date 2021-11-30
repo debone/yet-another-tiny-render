@@ -5,3 +5,8 @@ export type Color = {
   a: number;
 };
 
+export type TGA = {
+  data: Uint8Array;
+  width: number;
+  height: number;
+};
