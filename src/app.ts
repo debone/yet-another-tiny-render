@@ -7,6 +7,7 @@ import lesson0 from "./lesson0";
 import lesson1 from "./lesson1";
 import lesson2 from "./lesson2";
 import lesson3 from "./lesson3";
+import lesson4 from "./lesson4";
 
 function addValue(lesson) {
   return { text: lesson, value: lesson };
@@ -17,6 +18,7 @@ const allLessons = {
   ...lesson1,
   ...lesson2,
   ...lesson3,
+  ...lesson4
 };
 
 const allLessonsKeys = Object.keys(allLessons).map(addValue);
@@ -43,7 +45,7 @@ const selector: any = pane.addBlade({
   presetKey: "scene",
   label: "Scene",
   options: [{ text: "none", value: "" }, ...allLessonsKeys],
-  value:"3: render head with texture",
+  value: "4: transform lines",
 });
 
 const canvas = document.getElementById(
