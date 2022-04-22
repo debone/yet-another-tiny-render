@@ -23,32 +23,29 @@ export function markZ(canvas, data, zbuff) {
   }
 }
 
-export function setPixel(
-  canvas,
-  data: Uint8ClampedArray,
-  x: number,
-  y: number,
-  color: Color
-) {
+export function setPixel(canvas, data: Uint8ClampedArray, x: number, y: number, color: Color) {
   // TODO huh, setPixel with non-integers?
   x = Math.round(x) * 4;
   y = Math.round(y) * 4 * canvas.width;
-  
+
   data[0 + x + y] = color.r;
   data[1 + x + y] = color.g;
   data[2 + x + y] = color.b;
   data[3 + x + y] = color.a;
 }
 
-export function setLine(
-  canvas,
-  data: Uint8ClampedArray,
-  x0: number,
-  y0: number,
-  x1: number,
-  y1: number,
-  color: Color
-) {
+export function setBigPixel(canvas, data: Uint8ClampedArray, x: number, y: number, color: Color) {
+  let bigX = x * 4;
+  let bigY = y * 4;
+
+  for (let i = bigX; i < bigX + 4; i++) {
+    for (let j = bigY; j < bigY + 4; j++) {
+      setPixel(canvas, data, i, j, color);
+    }
+  }
+}
+
+export function setLine(canvas, data: Uint8ClampedArray, x0: number, y0: number, x1: number, y1: number, color: Color) {
   let steep = false;
 
   if (Math.abs(x0 - x1) < Math.abs(y0 - y1)) {
@@ -97,16 +94,15 @@ export function setLine(
   }
 }
 
-
-export const bluerocolors : Color[] = [
-  {r:20,  g:95,  b: 242, a: 255},
-  {r:143, g:81,  b: 223, a: 255},
-  {r:195, g:66,  b: 198, a: 255},
-  {r:227, g:58,  b: 170, a: 255},
-  {r:247, g:64,  b: 141, a: 255},
-  {r:255, g:82,  b: 115, a: 255},
-  {r:254, g:105, b: 93, a: 255},
-  {r:247, g:129, b: 77, a: 255},
-  {r:234, g:150, b: 69, a: 255},
-  {r:219, g:170, b: 72, a: 255},
-]
+export const bluerocolors: Color[] = [
+  { r: 20, g: 95, b: 242, a: 255 },
+  { r: 143, g: 81, b: 223, a: 255 },
+  { r: 195, g: 66, b: 198, a: 255 },
+  { r: 227, g: 58, b: 170, a: 255 },
+  { r: 247, g: 64, b: 141, a: 255 },
+  { r: 255, g: 82, b: 115, a: 255 },
+  { r: 254, g: 105, b: 93, a: 255 },
+  { r: 247, g: 129, b: 77, a: 255 },
+  { r: 234, g: 150, b: 69, a: 255 },
+  { r: 219, g: 170, b: 72, a: 255 },
+];

@@ -8,6 +8,7 @@ import lesson1 from "./lesson1";
 import lesson2 from "./lesson2";
 import lesson3 from "./lesson3";
 import lesson4 from "./lesson4";
+import pixelArt from "./pixelArt";
 
 function addValue(lesson) {
   return { text: lesson, value: lesson };
@@ -18,7 +19,8 @@ const allLessons = {
   ...lesson1,
   ...lesson2,
   ...lesson3,
-  ...lesson4
+  ...lesson4,
+  ...pixelArt,
 };
 
 const allLessonsKeys = Object.keys(allLessons).map(addValue);
@@ -45,12 +47,10 @@ const selector: any = pane.addBlade({
   presetKey: "scene",
   label: "Scene",
   options: [{ text: "none", value: "" }, ...allLessonsKeys],
-  value: "4: transform lines",
+  value: "5: pixel art loading",
 });
 
-const canvas = document.getElementById(
-  "tiny-render-canvas"
-) as HTMLCanvasElement;
+const canvas = document.getElementById("tiny-render-canvas") as HTMLCanvasElement;
 const context = canvas.getContext("2d");
 
 canvas.halfWidth = canvas.width / 2;
@@ -86,11 +86,7 @@ const handleNewScene = (ev) => {
       });
 
       if (lesson.preload) {
-        lesson
-          .preload()
-          .then(() =>
-            lesson.options(sceneFolder, drawWith.bind(null, lesson.render))
-          );
+        lesson.preload().then(() => lesson.options(sceneFolder, drawWith.bind(null, lesson.render)));
       } else {
         lesson.options(sceneFolder, drawWith.bind(null, lesson.render));
       }
